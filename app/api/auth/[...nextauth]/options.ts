@@ -89,7 +89,7 @@ export const authOptions: NextAuthOptions = {
               credentials.password,
               user.gpCredentials[0].password
             );
-            if (isPasswordCorrect) {
+            if (isPasswordCorrect && user.gpCredentials[0].access) {
               // console.log("::::",user);
 
               return { user, typeAdmin: "gp" };

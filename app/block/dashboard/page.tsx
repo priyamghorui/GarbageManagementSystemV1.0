@@ -17,18 +17,17 @@ const blockDetails = {
   name: " Block Development Office",
 };
 
-const complaintStats = {
-  totalReceived: 0,
-  resolved: 0,
-  notResolved: 0,
-};
-
 const BlockAdminDashboard = () => {
   // Removed const [showData, setShowData] = useState(false); as it's no longer needed for the table.
   const [totalGps, settotalGps] = useState(0);
   const [totalBenificiary, settotalBenificiary] = useState(0);
+  const [complaintStats, setcomplaintStats] = useState({
+    totalReceived: 0,
+    resolved: 0,
+    notResolved: 0,
+  });
 
-  const handleNavigation = (path:any) => {
+  const handleNavigation = (path: any) => {
     // console.log(`Navigating to: ${path}`);
     // In a real Next.js app, you would use useRouter or Link here.
     window.location.href = "/block/" + path;
@@ -40,6 +39,16 @@ const BlockAdminDashboard = () => {
       // console.log(response?.data);
       settotalGps(response?.data?.data?.totalGps);
       settotalBenificiary(response?.data?.data?.totalBenificiary);
+      const response2 = await axios.get(`/api/fetch-user-complaints-via-block`);
+      // console.log(response2?.data);
+      setcomplaintStats({
+        totalReceived: response2?.data?.data?.length,
+        resolved: response2?.data?.data?.filter((e:any) => e.status == "Resolved")
+          .length,
+        notResolved: response2?.data?.data?.filter(
+          (e:any) => e.status != "Resolved"
+        ).length,
+      });
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -124,8 +133,7 @@ const BlockAdminDashboard = () => {
             </div>
             <button
               onClick={() => handleNavigation("/complaints")}
-              disabled
-              className="w-full py-2 bg-red-600 cursor-pointer disabled:bg-red-400 disabled:cursor-not-allowed disabled:opacity-75 text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 shadow-md mt-6"
+              className="w-full py-2 bg-red-600 cursor-pointer text-white font-medium rounded-lg hover:bg-red-700 transition duration-150 shadow-md mt-6"
             >
               View All Complaints
             </button>
@@ -157,7 +165,7 @@ const BlockAdminDashboard = () => {
 
 // --- SUB-COMPONENTS FOR REUSABILITY ---
 
-const CardContainer = ({ title, icon: Icon, color, children }:any) => (
+const CardContainer = ({ title, icon: Icon, color, children }: any) => (
   <div
     className={`bg-white rounded-xl shadow-lg p-6 border-t-4 border-${color}-600`}
   >
@@ -171,7 +179,7 @@ const CardContainer = ({ title, icon: Icon, color, children }:any) => (
   </div>
 );
 
-const DetailItem = ({ label, value, icon: Icon }:any) => (
+const DetailItem = ({ label, value, icon: Icon }: any) => (
   <div className="p-3 bg-gray-50 rounded-lg">
     <p className="text-xs font-medium text-gray-500">{label}</p>
     <div className="flex items-center mt-1">
@@ -181,7 +189,7 @@ const DetailItem = ({ label, value, icon: Icon }:any) => (
   </div>
 );
 
-const ComplaintStat = ({ label, value, color, icon: Icon }:any) => (
+const ComplaintStat = ({ label, value, color, icon: Icon }: any) => (
   <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
     <div className="flex items-center">
       <Icon className={`w-5 h-5 mr-3 ${color}`} />

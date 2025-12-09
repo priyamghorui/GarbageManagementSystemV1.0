@@ -97,6 +97,25 @@ export const authOptions: NextAuthOptions = {
               throw new Error("Incorrect password");
             }
           }
+          if (credentials.adminType == "regular") {
+            const user:any = await userDetails.findOne(
+              { email: credentials.email }
+           );
+          // console.log(user);
+          
+          if (!user) {
+            throw new Error('No user found with this cradential');
+          }
+ const isPasswordCorrect = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+           if (isPasswordCorrect) {
+       return { user, typeAdmin: "regular" };
+          } else {
+            throw new Error('Incorrect password');
+          }
+          }
         } catch (err: any) {
           throw new Error(err);
         }
@@ -120,6 +139,14 @@ export const authOptions: NextAuthOptions = {
         token.admin_id = user.user.gpCredentials[0]._id?.toString();
         token.typeAdmin = "gp";
       }
+      if (user?.typeAdmin == "regular") {
+        token.admin_id = user.user._id?.toString(); // Convert ObjectId to string
+        token.name = user.user.name;
+        token.mobile = user.user.mobile;
+        token.email = user.user.email;
+        // token.admin_id = user.user.gpCredentials[0]._id?.toString();
+        token.typeAdmin = "regular";
+      }
       return token;
     },
     async session({ session, token }: any) {
@@ -138,6 +165,14 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email;
         session.user.admin_id = token.admin_id;
         session.user.gpName = token.gpName;
+      }
+      if (token && token?.typeAdmin == "regular") {
+        // session.user._id = token._id;
+        session.user.typeAdmin = token.typeAdmin;
+        session.user.email = token.email;
+        session.user.admin_id = token.admin_id;
+        session.user.name = token.name;
+        session.user.mobile = token.mobile;
       }
       return session;
     },

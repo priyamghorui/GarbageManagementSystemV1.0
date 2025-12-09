@@ -1,15 +1,8 @@
 const { default: mongoose } = require("mongoose");
 
-const userOtpManageSchema = new mongoose.Schema(
+const otpManageSchema = new mongoose.Schema(
   {
-    level_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      // required: [true, "provide id"],
-    },
-    person_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      // required: [true, "provide id"],
-    },
+ 
     email: {
       type: String,
       required: [true, "provide email"],
@@ -23,7 +16,10 @@ const userOtpManageSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+otpManageSchema.index(
+  { createdAt: 1 }, 
+  { expireAfterSeconds: 600 }
+);
+const otpManage =mongoose.models.otpManages|| mongoose.model("otpManages", otpManageSchema);
 
-const userOtpManage = mongoose.model("userOtpManages", userOtpManageSchema);
-
-module.exports = userOtpManage;
+module.exports = otpManage;

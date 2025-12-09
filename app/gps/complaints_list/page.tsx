@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
     Search, 
     ChevronLeft, 
@@ -13,7 +13,17 @@ import {
     User,
     Filter
 } from 'lucide-react';
-
+import { useSession } from 'next-auth/react';
+import axios from 'axios';
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  return date.toLocaleDateString("en-IN", options);
+};
 // --- DUMMY DATA GENERATOR ---
 const generateDummyComplaints = (count:any) => {
     const complaints = [];
@@ -107,11 +117,11 @@ const ComplaintDetailModal = ({ isOpen, onClose, complaint }:any) => {
                 <div className="flex justify-between items-center p-5 border-b bg-gray-50 rounded-t-xl sticky top-0 z-10">
                     <div>
                         <h3 className="text-xl font-bold text-gray-900">Complaint Details</h3>
-                        <p className="text-sm text-gray-500 font-medium">ID: <span className="text-blue-600">{complaint.complaintId}</span></p>
+                        <p className="text-sm text-gray-500 font-medium">ID: <span className="text-blue-600">{complaint._id}</span></p>
                     </div>
                     <button 
                         onClick={onClose} 
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition duration-200"
+                        className="p-2 text-gray-400 hover:text-red-500 cursor-pointer hover:bg-red-50 rounded-full transition duration-200"
                     >
                         <X className="w-6 h-6" />
                     </button>
@@ -122,24 +132,105 @@ const ComplaintDetailModal = ({ isOpen, onClose, complaint }:any) => {
                     
                     {/* Key Info Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DetailItem icon={ClipboardList} label="Complaint ID" value={complaint.complaintId} highlight />
-                        <DetailItem icon={User} label="Reported By" value={complaint.reportedBy} />
-                        <DetailItem icon={Calendar} label="Date Submitted" value={complaint.date} />
+                        <DetailItem icon={ClipboardList} label="Complaint ID" value={complaint._id} highlight />
+                        <DetailItem icon={User} label="Reported By" value={complaint.userId} />
+                        <DetailItem icon={Calendar} label="Date Submitted" value={formatDate(complaint?.createdAt)} />
+
                         <DetailItem icon={STATUS_CONFIG[complaint.status].icon} label="Status" highlight={true}>
                             <StatusTag status={complaint.status} />
+                        </DetailItem>
+                        <DetailItem icon={STATUS_CONFIG[complaint.status].icon} label="Set Status" highlight={true}>
+                        <div className='cursor-pointer mb-2' onClick={async()=>{
+                            try {
+                                const response = await axios.post('/api/change-complaint-status', {
+        _id: complaint._id,
+        changeTo: 'Open'
+    });
+    if (response?.data?.success) {
+        complaint.status="Open"
+        // console.log(complaint);
+        onClose();
+        
+    }else{
+        alert("Something went wrong!!")
+
+    }
+                                
+                            } catch (error) {
+                                alert("Something went wrong!!")
+                            }
+                        }}>
+                            <StatusTag status={"Open"} />
+                        </div>
+                        <div className='cursor-pointer mb-2' onClick={async()=>{
+                          
+                               try {
+                                const response = await axios.post('/api/change-complaint-status', {
+        _id: complaint._id,
+        changeTo: 'In Progress'
+    });
+    if (response?.data?.success) {
+        complaint.status="In Progress"
+        // console.log(complaint);
+        onClose();
+        
+    }else{
+        alert("Something went wrong!!")
+
+    }
+                                
+                            } catch (error) {
+                                alert("Something went wrong!!")
+                            }
+                        }}>
+                        <StatusTag status={"In Progress"} />
+                        </div>
+                        <div className='cursor-pointer mb-2' onClick={async()=>{
+                          
+                               try {
+                                const response = await axios.post('/api/change-complaint-status', {
+        _id: complaint._id,
+        changeTo: 'Resolved'
+    });
+    if (response?.data?.success) {
+        complaint.status="Resolved"
+        // console.log(complaint);
+        onClose();
+        
+    }else{
+        alert("Something went wrong!!")
+
+    }
+                                
+                            } catch (error) {
+                                alert("Something went wrong!!")
+                            }
+                        }}>
+                            <StatusTag status={"Resolved"} />
+                        </div>
                         </DetailItem>
                     </div>
 
                     {/* Issue Description */}
-                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b pb-1 mt-2">Issue Description</h4>
+                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b pb-1 mt-2">Issue Location</h4>
                     <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-100">
-                        <p className="text-sm text-gray-800 font-medium">{complaint.issueDescription}</p>
+                        <p className="text-sm text-gray-800 font-medium">{complaint.specificLocation}</p>
                     </div>
 
                     {/* Detailed Notes */}
                     <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b pb-1 mt-2">Detailed Notes</h4>
                     <div className="p-4 bg-gray-100 rounded-lg border border-gray-200">
-                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{complaint.detailedDescription}</p>
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{complaint.description}</p>
+                    </div>
+                    {/* Detailed Notes */}
+                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider border-b pb-1 mt-2">Image</h4>
+                    <div className="p-4 bg-gray-100 rounded-lg border border-gray-200">
+                           <img
+                className="text-sm text-gray-700 whitespace-pre-wrap"
+                src={
+                  complaint?.img
+                }
+              />
                     </div>
                 </div>
             </div>
@@ -154,24 +245,45 @@ const ComplaintsListPage = () => {
     const [statusFilter, setStatusFilter] = useState('All');
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedComplaint, setSelectedComplaint]:any = useState(null);
-
+    const [allcomplaintsFetchViaGp, setallcomplaintsFetchViaGp]:any = useState([]);
+    const [loadingStatus, setloadingStatus]:any = useState(true);
+  const { data: session, status }: any = useSession();
+  async function fetchData() {
+    if (session?.user?.admin_id) {
+      try {
+        const response = await axios.get(
+          `/api/fetch-user-complaints-via-gp?gpName=${session?.user?.gpName}`
+        );
+        // console.log(response?.data);
+        setallcomplaintsFetchViaGp(response?.data?.data);
+      } catch (error) {
+        // console.error("Error fetching data:", error);
+      } finally {
+        setloadingStatus(false);
+      }
+    }
+  }
+  useEffect(() => {
+    fetchData();
+  }, [status, session]);
     // Filter Logic
     const filteredComplaints = useMemo(() => {
         const lowerSearch = searchTerm.toLowerCase();
         
-        return ALL_COMPLAINTS.filter(complaint => {
+        return allcomplaintsFetchViaGp.filter((complaint:any) => {
             // 1. Status Filter
             const matchesStatus = statusFilter === 'All' || complaint.status === statusFilter;
             
             // 2. Search Term Filter
             const matchesSearch = 
-                complaint.complaintId.toLowerCase().includes(lowerSearch) ||
-                complaint.reportedBy.toLowerCase().includes(lowerSearch) ||
-                complaint.issueDescription.toLowerCase().includes(lowerSearch);
+                complaint._id.toLowerCase().includes(lowerSearch) ||
+                complaint.userId.toLowerCase().includes(lowerSearch) ||
+                complaint.description.toLowerCase().includes(lowerSearch);
             
             return matchesStatus && matchesSearch;
         });
-    }, [searchTerm, statusFilter]);
+        
+    }, [searchTerm, statusFilter,selectedComplaint,allcomplaintsFetchViaGp]);
 
     // Pagination Logic
     const totalPages = Math.ceil(filteredComplaints.length / ITEMS_PER_PAGE);
@@ -275,9 +387,9 @@ const ComplaintsListPage = () => {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {paginatedComplaints.length > 0 ? (
-                                    paginatedComplaints.map((complaint, index) => (
+                                    paginatedComplaints.map((complaint:any, index:any) => (
                                         <tr 
-                                            key={complaint.complaintId} 
+                                            key={complaint._id} 
                                             className="hover:bg-blue-50 transition duration-150 cursor-pointer group"
                                             onClick={() => setSelectedComplaint(complaint)}
                                         >
@@ -285,10 +397,10 @@ const ComplaintsListPage = () => {
                                                 {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600 group-hover:text-blue-800">
-                                                {complaint.complaintId}
+                                                {complaint._id}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                {complaint.date}
+                                                {formatDate(complaint?.createdAt)}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                 <StatusTag status={complaint.status} />
@@ -299,7 +411,16 @@ const ComplaintsListPage = () => {
                                         </tr>
                                     ))
                                 ) : (
-                                    <tr>
+                                    <>
+                                    {loadingStatus?(    <tr>
+                                        <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
+                                            <div className="flex flex-col items-center justify-center">
+                                                <ClipboardList className="w-12 h-12 text-gray-300 mb-2" />
+                                                <p className="text-lg font-medium">Loading...</p>
+                                                <p className="text-sm">Try adjusting your search or clearing the status filter.</p>
+                                            </div>
+                                        </td>
+                                    </tr>):(    <tr>
                                         <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
                                             <div className="flex flex-col items-center justify-center">
                                                 <ClipboardList className="w-12 h-12 text-gray-300 mb-2" />
@@ -307,7 +428,9 @@ const ComplaintsListPage = () => {
                                                 <p className="text-sm">Try adjusting your search or clearing the status filter.</p>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr>)}
+                                    </>
+                                
                                 )}
                             </tbody>
                         </table>

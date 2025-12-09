@@ -29,8 +29,9 @@ export default async function middleware(request: NextRequest) {
 
   const isBlockRoute = pathname.startsWith("/block/");
   const isGpRoute = pathname.startsWith("/gps/");
+  const isRegularRoute = pathname.startsWith("/regular/");
 
-  if (isBlockRoute || isGpRoute) {
+  if (isBlockRoute || isGpRoute || isRegularRoute) {
     const { isAuthenticated, userType } = await validateTokenAndGetType(
       request
     );
@@ -47,7 +48,7 @@ export default async function middleware(request: NextRequest) {
 
     if (isBlockRoute) {
       requiredType = "block";
-      if (userType !== "block" && userType !== "gpadmin") {
+      if (userType !== "block") {
         // console.log(
         //   `[AUTH] Access Denied: User type '${userType}' not authorized for Block Routes.`
         // );
@@ -55,12 +56,22 @@ export default async function middleware(request: NextRequest) {
       }
     } else if (isGpRoute) {
       requiredType = "gp";
-      if (userType !== "gp" && userType !== "gpadmin") {
+      if (userType !== "gp") {
         // console.log(
         //   `[AUTH] Access Denied: User type '${userType}' not authorized for GP Routes.`
         // );
         return NextResponse.redirect(new URL("/", request.url));
       }
+    }else if (isRegularRoute) {
+      
+      requiredType = "regular";
+      if (userType !== "regular") {
+        // console.log(
+        //   `[AUTH] Access Denied: User type '${userType}' not authorized for GP Routes.`
+        // );
+        return NextResponse.redirect(new URL("/", request.url));
+      }
+
     }
 
     // console.log(
@@ -73,5 +84,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/block/:path*", "/gps/:path*"],
+  matcher: ["/block/:path*", "/gps/:path*","/regular/:path*"],
 };

@@ -11,6 +11,10 @@ const userDetailsSchema = new mongoose.Schema(
       required: [true, "provide email"],
       unique: true,
     },
+    mobile: {
+      type: Number,
+      required: [true, "provide mobile"],
+    },
 
     password: {
       type: String,

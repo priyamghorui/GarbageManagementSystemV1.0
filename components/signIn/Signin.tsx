@@ -6,7 +6,7 @@ import { signIn } from "next-auth/react";
 const Signin = () => {
   const userNameOrEmailRef = useRef("");
   const passwordRef = useRef("");
-  const [adminType, setAdminType] = useState('block'); // New state for dropdown
+  const [adminType, setAdminType] = useState('regular'); // New state for dropdown
   const [message, setMessage] = useState("");
   const [isLoadingSignText, setisLoadingSignText] = useState(false);
 
@@ -61,6 +61,7 @@ const Signin = () => {
                     required
                     className="appearance-none w-full rounded-lg border border-gray-600 bg-gray-700 pl-4 pr-10 py-3 text-base text-white placeholder:text-gray-400 outline-none transition focus:border-green-500 focus:ring-1 focus:ring-green-500 cursor-pointer"
                 >
+                    <option value="regular" className="bg-gray-700 text-white">Regular User</option>
                     <option value="gp" className="bg-gray-700 text-white">Gram Panchayat (GP)</option>
                     <option value="block" className="bg-gray-700 text-white">Block</option>
                 </select>
@@ -120,7 +121,7 @@ const Signin = () => {
         {/* Links: Forgot Password & Sign Up */}
         <div className="mt-6 text-center space-y-2">
             <a
-                href="/#"
+                href="/forgot-password"
                 className="inline-block text-sm text-gray-300 hover:text-green-400 hover:underline transition duration-150"
             >
                 Forgot Password?

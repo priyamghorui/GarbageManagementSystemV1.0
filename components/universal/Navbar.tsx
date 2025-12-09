@@ -3,10 +3,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { Loader2, LogIn, Menu, X } from "lucide-react"; // Icons for mobile toggle
 import Signin from "../signIn/Signin";
 import { signOut, useSession } from "next-auth/react";
+import Signup from "../signUp/Signup";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   // Note: The original component had commented-out complex logic (axios, isLoading)
   // For the UI conversion, these dependencies are removed to focus on the structure and styling.
   // We keep the "Home" link as the only active link.
@@ -21,6 +23,7 @@ const Navbar = () => {
       !signInRef.current.contains(event.target as Node)
     ) {
       setIsSignInOpen(false);
+      setIsSignUpOpen(false);
     }
   };
   useEffect(() => {
@@ -95,7 +98,16 @@ const Navbar = () => {
                           Dashboard
                         </a>
                       ) : (
+                        <>   {session?.user?.typeAdmin == "regular" ? (
+                        <a
+                          href="/regular/dashboard"
+                          className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+                        >
+                          Dashboard
+                        </a>
+                      ) : (
                         <></>
+                      )}</>
                       )}
                     </>
                   )}
@@ -131,7 +143,8 @@ const Navbar = () => {
                   </button>
                 </div>
               ) : (
-                <div className="hidden lg:block">
+                <div className="flex">
+                <div className="hidden lg:block mr-3">
                   {/* The original Button logic was commented out, so we provide a sleek, functional Tailwind placeholder */}
                   <button
                     // onClick={handleLogout} // Uncomment and implement actual logic
@@ -142,9 +155,27 @@ const Navbar = () => {
                     }}
                   >
                     <LogIn className="w-5 h-5 mr-2 text-white" />
-                    Admin Sign In
+                    Sign In
                   </button>
                 </div>
+                <div className="hidden lg:block">
+                  {/* The original Button logic was commented out, so we provide a sleek, functional Tailwind placeholder */}
+                  <button
+                    // onClick={handleLogout} // Uncomment and implement actual logic
+                    className="px-4 py-2 bg-green-600 flex text-white text-sm font-medium rounded-lg hover:bg-green-700 transition duration-150 shadow-lg"
+                    aria-label="Action button"
+                    onClick={() => {
+                      setIsSignUpOpen(true);
+                    }}
+                  >
+                    <LogIn className="w-5 h-5 mr-2 text-white" />
+                    Sign Up
+                  </button>
+                </div>
+                
+                
+                </div>
+
               )}
             </>
           )}
@@ -165,6 +196,23 @@ const Navbar = () => {
                             /> */}
                 </button>
                 <Signin />
+              </div>
+            </div>
+          )}
+          {isSignUpOpen && (
+            <div className="fixed top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center z-50">
+              <div ref={signInRef} className="w-lg">
+                <button
+                  onClick={() => setIsSignUpOpen(false)}
+                  className="absolute top-0 right-0 mr-8 mt-8 cursor-pointer"
+                  aria-label="Close Sign In Modal"
+                >
+                  {/* <Icon
+                              icon="tabler:currency-xrp"
+                              className="text-white hover:text-primary text-24 inline-block me-2"
+                            /> */}
+                </button>
+                <Signup />
               </div>
             </div>
           )}

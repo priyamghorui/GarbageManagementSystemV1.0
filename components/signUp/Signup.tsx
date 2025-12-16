@@ -7,11 +7,12 @@ import {
   User,
   KeyRound,
   Phone,
+  X,
 } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 // The component is renamed to Signin to avoid potential naming conflicts if integrated
-const Signup = () => {
+const Signup = ({close}:any) => {
   const formRef: any = useRef(null);
   const userNameOrEmailRef = useRef("");
   const usernameref = useRef("");
@@ -108,6 +109,9 @@ const Signup = () => {
       <div className="w-full max-w-md rounded-xl bg-gray-800 p-8 shadow-2xl border border-gray-700">
         {/* Header/Title */}
         <div className="text-center mb-8">
+                    <div className="flex flex-row-reverse cursor-pointer">
+                <X className="w-6 h-6" onClick={()=>{close()}}/>
+          </div>
           <h1 className="text-3xl font-bold text-green-400">Welcome</h1>
           <p className="text-gray-400 mt-2">
             Sign Up to manage your city's waste reports.

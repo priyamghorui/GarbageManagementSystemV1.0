@@ -195,7 +195,8 @@ const Navbar = () => {
                               className="text-white hover:text-primary text-24 inline-block me-2"
                             /> */}
                 </button>
-                <Signin />
+                <Signin close={()=>{setIsSignInOpen(false)
+                }} />
               </div>
             </div>
           )}
@@ -212,7 +213,8 @@ const Navbar = () => {
                               className="text-white hover:text-primary text-24 inline-block me-2"
                             /> */}
                 </button>
-                <Signup />
+                <Signup close={()=>{setIsSignUpOpen(false)
+                }} />
               </div>
             </div>
           )}
@@ -249,15 +251,120 @@ const Navbar = () => {
           >
             Home
           </a>
-
+  {status === "loading" ? (
+                <>
+                  <div className="flex items-center space-x-2 text-gray-500 bg-gray-100 px-4 py-2 rounded-xl text-sm font-semibold animate-pulse">
+                    <Loader2 className="w-7 h-7 animate-spin" />
+                    <span>Loading Auth...</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {session?.user?.typeAdmin == "block" ? (
+                    <a
+                      href="/block/dashboard"
+                      className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+                    >
+                      Dashboard
+                    </a>
+                  ) : (
+                    <>
+                      {" "}
+                      {session?.user?.typeAdmin == "gp" ? (
+                        <a
+                          href="/gps/dashboard"
+                          className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+                        >
+                          Dashboard
+                        </a>
+                      ) : (
+                        <>   {session?.user?.typeAdmin == "regular" ? (
+                        <a
+                          href="/regular/dashboard"
+                          className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+                        >
+                          Dashboard
+                        </a>
+                      ) : (
+                        <></>
+                      )}</>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
           {/* Mobile Auth/Action Button */}
-          <button
+          {/* <button
             // onClick={handleLogout} // Uncomment and implement actual logic
             className="w-full text-left px-3 py-2 bg-green-600 text-white text-base font-medium rounded-md hover:bg-green-700 transition duration-150 shadow-md"
             aria-label="Action button"
           >
-            Sign In / Action
-          </button>
+            Sign In / Action s
+          </button> */}
+  {status === "loading" ? (
+            <>
+              {" "}
+              <div className="flex items-center space-x-2 text-gray-500 bg-gray-100 px-4 py-2 rounded-xl text-sm font-semibold animate-pulse">
+                <Loader2 className="w-7 h-7 animate-spin" />
+                <span>Loading Auth...</span>
+              </div>
+            </>
+          ) : (
+            <>
+              {" "}
+              {session ? (
+                <div className="mt-2">
+                  {/* The original Button logic was commented out, so we provide a sleek, functional Tailwind placeholder */}
+                  <button
+                    // onClick={handleLogout} // Uncomment and implement actual logic
+                    className="w-full text-left px-3 py-2 bg-green-600 text-white text-base font-medium rounded-md hover:bg-green-700 transition duration-150 shadow-md flex"
+                    aria-label="Action button"
+                    onClick={() => {
+                      signOut();
+                    }}
+                  >
+                    <LogIn className="w-5 h-5 mr-2 text-white" />
+                    Log Out
+                  </button>
+                </div>
+              ) : (
+                <div className="">
+                <div className=" ">
+                  {/* The original Button logic was commented out, so we provide a sleek, functional Tailwind placeholder */}
+                  <button
+                    // onClick={handleLogout} // Uncomment and implement actual logic
+                    className="w-full text-left px-3 py-2 bg-green-600 text-white text-base font-medium rounded-md hover:bg-green-700 transition duration-150 shadow-md flex"
+                    aria-label="Action button"
+                    onClick={() => {
+                      setIsSignInOpen(true);
+                    }}
+                  >
+                    <LogIn className="w-5 h-5 mr-2 text-white" />
+                    Sign In
+                  </button>
+                </div>
+                <div className="mt-3">
+                  {/* The original Button logic was commented out, so we provide a sleek, functional Tailwind placeholder */}
+                  <button
+                    // onClick={handleLogout} // Uncomment and implement actual logic
+                    className="w-full text-left px-3 py-2 bg-green-600 text-white text-base font-medium rounded-md hover:bg-green-700 transition duration-150 shadow-md flex"
+                    aria-label="Action button"
+                    onClick={() => {
+                      setIsSignUpOpen(true);
+                    }}
+                  >
+                    <LogIn className="w-5 h-5 mr-2 text-white" />
+                    Sign Up
+                  </button>
+                </div>
+                
+                
+                </div>
+
+              )}
+            </>
+          )}
+
         </div>
       </div>
     </nav>

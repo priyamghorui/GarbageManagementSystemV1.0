@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
-import { Loader2, Mail, Lock, ChevronDown } from "lucide-react";
+import { Loader2, Mail, Lock, ChevronDown, X } from "lucide-react";
 import { signIn } from "next-auth/react";
 
 // The component is renamed to Signin to avoid potential naming conflicts if integrated
-const Signin = () => {
+const Signin = ({close}:any) => {
   const userNameOrEmailRef = useRef("");
   const passwordRef = useRef("");
   const [adminType, setAdminType] = useState('regular'); // New state for dropdown
@@ -40,6 +40,9 @@ const Signin = () => {
         
         {/* Header/Title */}
         <div className="text-center mb-8">
+          <div className="flex flex-row-reverse cursor-pointer">
+                <X className="w-6 h-6" onClick={()=>{close()}}/>
+          </div>
             <h1 className="text-3xl font-bold text-green-400">Welcome Back</h1>
             <p className="text-gray-400 mt-2">Sign in to manage your city's waste reports.</p>
         </div>
@@ -128,7 +131,7 @@ const Signin = () => {
             </a>
             <p className="text-gray-400 text-sm">
                 Not a member yet?{" "}
-                <a href="/#" className="text-green-400 hover:underline font-medium transition duration-150">
+                <a href="/" className="text-green-400 hover:underline font-medium transition duration-150">
                     Sign Up
                 </a>
             </p>

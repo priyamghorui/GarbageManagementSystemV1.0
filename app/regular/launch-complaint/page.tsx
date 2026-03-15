@@ -100,7 +100,7 @@ const App = () => {
     const file = e.target.files[0];
     // console.log(file?.size);
 
-    if (file?.size <= 1024 * 1024) {
+    if (file?.size <= 1024 * 1024*3) {
       // Generates a local preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -119,6 +119,8 @@ const App = () => {
          file: null,
         imagePreview: null,
       }));
+      alert("File size is too high. Make it within 3mb.");
+
     }
   };
 

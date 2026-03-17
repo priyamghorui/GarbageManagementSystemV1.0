@@ -156,6 +156,31 @@ const StatusBadge = ({ status }:any) => {
 };
 
 // Updated ComplaintRow to handle click events
+const FstpRow = ({ fstp, onRowClick }:any) => {
+  return (
+    <tr
+      className="border-b hover:bg-gray-50 transition duration-150 cursor-pointer"
+      onClick={() => onRowClick(fstp)} // Click handler to open modal
+    >
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 hidden sm:table-cell">
+        #{fstp._id}
+      </td>
+      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+        {fstp.location}
+        <div className="mt-1 block sm:hidden">
+          <StatusBadge status={fstp.status} />
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+        <StatusBadge status={fstp.status} />
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        {formatDate(fstp.createdAt)}
+      </td>
+    </tr>
+  );
+};
+// Updated ComplaintRow to handle click events
 const ComplaintRow = ({ complaint, onRowClick }:any) => {
   return (
     <tr
@@ -182,6 +207,81 @@ const ComplaintRow = ({ complaint, onRowClick }:any) => {
 };
 
 // New Modal Component
+const FstpDetailsModal = ({ complaint, onClose }:any) => {
+  return (
+    <div
+      className="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity z-50 overflow-y-auto"
+      style={{ backgroundColor: "lab(8 0.81 -12.25 / 0.77)" }}
+      onClick={onClose} // Close on backdrop click
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div
+          className="bg-white rounded-xl shadow-2xl w-full max-w-lg p-6 transform transition-all duration-300 scale-100 opacity-100"
+          onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+        >
+          <div className="flex justify-between items-start border-b pb-3 mb-4">
+            <h3 id="modal-title" className="text-xl font-bold text-gray-900">
+              FSTP - ID #{complaint._id}
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition p-1 rounded-full hover:bg-gray-100"
+            >
+              <svg
+                className="w-6 h-6 cursor-pointer"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium text-gray-500">Location</p>
+              <p className="text-lg font-semibold text-gray-800">
+                {complaint.location}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-6">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Status</p>
+                <StatusBadge status={complaint.status} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Date Filed</p>
+                <p className="text-gray-800">
+                  {formatDate(complaint.createdAt)}
+                </p>
+              </div>
+            </div>
+            
+          </div>
+
+          <div className="mt-6 pt-4 border-t">
+            <button
+              onClick={onClose}
+              className="w-full py-2 px-4 rounded-lg text-sm cursor-pointer font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150 shadow-md"
+            >
+              Close Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+// New Modal Component
 const ComplaintDetailsModal = ({ complaint, onClose }:any) => {
   return (
     <div
@@ -198,7 +298,7 @@ const ComplaintDetailsModal = ({ complaint, onClose }:any) => {
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
         >
           <div className="flex justify-between items-start border-b pb-3 mb-4">
-            <h3 id="modal-title" className="text-2xl font-bold text-gray-900">
+            <h3 id="modal-title" className="text-xl font-bold text-gray-900">
               Complaint #{complaint._id}
             </h3>
             <button
@@ -280,22 +380,34 @@ const App = () => {
   const [loadingStatus, setloadingStatus] = useState(true);
   const [activeView, setActiveView] = useState("dashboard"); // 'dashboard', 'newComplaint', 'details'
   const [selectedComplaint, setSelectedComplaint] = useState(null); // New state for modal
+  const [selectedFstp, setSelectedFstp] = useState(null); // New state for modal
   const [allComplaints, setallComplaints] = useState([]); // New state for modal
+  const [allFstp, setallFstp] = useState([]); // New state for modal
 
   // --- Pagination State and Logic ---
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageFstp, setCurrentPageFstp] = useState(1);
   const recordsPerPage = 6;
 
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const indexOfLastRecordFstp = currentPageFstp * recordsPerPage;
+  const indexOfFirstRecordFstp = indexOfLastRecordFstp - recordsPerPage;
   const currentComplaints = allComplaints.slice(
     indexOfFirstRecord,
     indexOfLastRecord
   );
+  const currentFstp = allFstp.slice(
+    indexOfFirstRecordFstp,
+    indexOfLastRecordFstp
+  );
   const nPages = Math.ceil(allComplaints.length / recordsPerPage);
   const pageNumbers = [...Array(nPages + 1).keys()].slice(1);
+  const nPagesFstp = Math.ceil(allFstp.length / recordsPerPage);
+  const pageNumbersFstp = [...Array(nPagesFstp + 1).keys()].slice(1);
 
   const paginate = (pageNumber:any) => setCurrentPage(pageNumber);
+  const paginateFstp = (pageNumber:any) => setCurrentPageFstp(pageNumber);
 
   const nextPage = () => {
     if (currentPage !== nPages) setCurrentPage(currentPage + 1);
@@ -304,16 +416,24 @@ const App = () => {
   const prevPage = () => {
     if (currentPage !== 1) setCurrentPage(currentPage - 1);
   };
+  const nextPageFstp = () => {
+    if (currentPageFstp !== nPages) setCurrentPage(currentPageFstp + 1);
+  };
+
+  const prevPageFstp = () => {
+    if (currentPageFstp !== 1) setCurrentPage(currentPageFstp - 1);
+  };
   // ---------------------------------
   const { data: session, status }: any = useSession();
   async function fetchData() {
     if (session?.user?.admin_id) {
       try {
         const response = await axios.get(
-          `/api/fetch-user-complaints-via-user?id=${session?.user?.admin_id}`
+          `/api/fetch-user-complaints-fstp-via-user?id=${session?.user?.admin_id}`
         );
         // console.log(response?.data);
         setallComplaints(response?.data?.data);
+        setallFstp(response?.data?.dataFstp);
       } catch (error) {
         // console.error("Error fetching data:", error);
       } finally {
@@ -329,6 +449,14 @@ const App = () => {
     () => allComplaints.filter((c:any) => c.status === "Resolved").length,
     [allComplaints]
   );
+  const resolvedFstp = useMemo(
+    () => allFstp.filter((c:any) => c.status === "Resolved").length,
+    [allFstp]
+  );
+  const allFstpCount = useMemo(
+    () => allFstp.length,
+    [allFstp]
+  );
   const allComplaintsCount = useMemo(
     () => allComplaints.length,
     [allComplaints]
@@ -340,6 +468,13 @@ const App = () => {
       ).length,
     [allComplaints]
   );
+  const pendingComplaintsFstp = useMemo(
+    () =>
+      allFstp.filter(
+        (c:any) => c.status === "Open" || c.status === "In Progress"
+      ).length,
+    [allFstp]
+  );
 
   // Handlers for "redirection"
   const handleNewComplaint = () => {
@@ -347,6 +482,12 @@ const App = () => {
     // // In a real Next.js app, this would be router.push('/new-complaint');
     // setActiveView("newComplaint");
     window.location.href = "/regular/launch-complaint";
+  };
+  const handleNewFstp = () => {
+    // console.log("Simulating redirection to New Complaint Page...");
+    // // In a real Next.js app, this would be router.push('/new-complaint');
+    // setActiveView("newComplaint");
+    window.location.href = "/regular/launch-fstp";
   };
   const goToDashboard = () => setActiveView("dashboard");
 
@@ -443,7 +584,7 @@ const App = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* User Details Card */}
-          <div className="lg:col-span-2 bg-white shadow-xl rounded-xl p-6 border border-gray-200 transition duration-300 hover:shadow-2xl">
+          <div className="lg:col-span-1 bg-white shadow-xl rounded-xl p-6 border border-gray-200 transition duration-300 hover:shadow-2xl">
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0">
                 <UserIcon className="w-12 h-12 text-indigo-600 p-2 bg-indigo-100 rounded-full" />
@@ -478,6 +619,26 @@ const App = () => {
                     <span className="text-gray-500 ml-1">Pending</span>
                   </div>
                 </div>
+                <div className="mt-4 flex flex-wrap gap-4">
+                  <div className="text-sm">
+                    <span className="font-semibold text-gray-900">
+                      {allFstpCount}
+                    </span>
+                    <span className="text-gray-500 ml-1">Total FSTP</span>
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-semibold text-green-600">
+                      {resolvedFstp}
+                    </span>
+                    <span className="text-gray-500 ml-1">Resolved</span>
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-semibold text-yellow-600">
+                      {pendingComplaintsFstp}
+                    </span>
+                    <span className="text-gray-500 ml-1">Pending</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -494,6 +655,19 @@ const App = () => {
             >
               <PlusCircleIcon className="w-5 h-5 mr-2" />
               Launch New Complaint
+            </button>
+          </div>
+          <div className="bg-indigo-600 shadow-xl rounded-xl p-6 flex flex-col justify-center items-center text-center transition duration-300 transform hover:scale-[1.02] cursor-pointer">
+            <PlusCircleIcon className="w-8 h-8 text-white mb-2" />
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Need Help For FSTP?
+            </h3>
+            <button
+              onClick={handleNewFstp}
+              className="w-full cursor-pointer flex items-center justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 transition duration-150 ease-in-out"
+            >
+              <PlusCircleIcon className="w-5 h-5 mr-2" />
+              Request For FSTP
             </button>
           </div>
         </div>
@@ -667,8 +841,184 @@ const App = () => {
             </div>
           )}
         </div>
+        {/* Complaint History Section */}
+        <div className="bg-white shadow-xl rounded-xl overflow-hidden mt-8">
+          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+              <ListIcon className="w-6 h-6 mr-2 text-indigo-600" />
+              Your FSTP History
+            </h2>
+            <span className="text-sm text-gray-500 hidden sm:block">
+              Latest FSTP first.
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell"
+                  >
+                    ID
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    FSTP Location
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell"
+                  >
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Date Filed
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {currentFstp.map((complaint:any) => (
+                  <FstpRow
+                    key={complaint?._id}
+                    fstp={complaint}
+                    onRowClick={setSelectedFstp} // Pass handler to open modal
+                  />
+                ))}
+              </tbody>
+            </table>
+            {currentFstp.length === 0 && (
+              <p className="text-center p-6 text-gray-500">
+                {loadingStatus
+                  ? "Loading..."
+                  : "You have no complaints filed yet for this page."}
+              </p>
+            )}
+          </div>
+
+          {/* Pagination Controls (Displayed if more than one page exists) */}
+          {nPagesFstp > 1 && (
+            <div className="border-t">
+              <nav className="flex items-center justify-between px-4 py-3 sm:px-6">
+                {/* Mobile Navigation */}
+                <div className="flex-1 flex justify-between sm:hidden">
+                  <button
+                    onClick={prevPageFstp}
+                    disabled={currentPageFstp === 1}
+                    className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={nextPageFstp}
+                    disabled={currentPageFstp === nPagesFstp}
+                    className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  >
+                    Next
+                  </button>
+                </div>
+
+                {/* Desktop Navigation */}
+                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Showing{" "}
+                      <span className="font-medium">
+                        {indexOfFirstRecordFstp + 1}
+                      </span>{" "}
+                      to{" "}
+                      <span className="font-medium">
+                        {Math.min(indexOfLastRecordFstp, allFstp.length)}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-medium">
+                        {allFstp.length}
+                      </span>{" "}
+                      results
+                    </p>
+                  </div>
+                  <div>
+                    <nav
+                      className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+                      aria-label="Pagination"
+                    >
+                      <button
+                        onClick={prevPageFstp}
+                        disabled={currentPageFstp === 1}
+                        className="relative inline-flex cursor-pointer items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                      >
+                        <span className="sr-only">Previous</span>
+                        <svg
+                          className="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M12.79 5.23a.75.75 0 010 1.06L9.42 10l3.37 3.71a.75.75 0 11-1.06 1.02l-3.5-3.83a.75.75 0 010-1.02l3.5-3.83a.75.75 0 011.06 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                      {pageNumbersFstp.map((pgNumber) => (
+                        <button
+                          key={pgNumber}
+                          onClick={() => paginateFstp(pgNumber)}
+                          aria-current={
+                            currentPageFstp === pgNumber ? "page" : undefined
+                          }
+                          className={`relative inline-flex cursor-pointer items-center px-4 py-2 text-sm font-semibold focus:z-20 transition 
+                                        ${
+                                          currentPage === pgNumber
+                                            ? "z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                            : "text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0"
+                                        }`}
+                        >
+                          {pgNumber}
+                        </button>
+                      ))}
+                      <button
+                        onClick={nextPage}
+                        disabled={currentPage === nPages}
+                        className="relative inline-flex items-center cursor-pointer rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                      >
+                        <span className="sr-only">Next</span>
+                        <svg
+                          className="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          aria-hidden="true"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M7.21 14.77a.75.75 0 010-1.06L10.58 10 7.21 6.35a.75.75 0 011.06-1.02l3.5 3.83a.75.75 0 010 1.02l-3.5 3.83a.75.75 0 01-1.06 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </nav>
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* Complaint Details Modal (Rendered conditionally) */}
+      {selectedFstp && (
+        <FstpDetailsModal
+          complaint={selectedFstp}
+          onClose={() => setSelectedFstp(null)}
+        />
+      )}
       {/* Complaint Details Modal (Rendered conditionally) */}
       {selectedComplaint && (
         <ComplaintDetailsModal

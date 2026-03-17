@@ -1,5 +1,6 @@
 import dbConnect from "@/lib/dbConnect";
 import userComplaintsDetails from "@/model/userComplaintsDetails";
+import userFstpDetails from "@/model/userFstpDetails";
 
 export async function GET(request: Request) {
   try {
@@ -11,6 +12,9 @@ export async function GET(request: Request) {
       const result = await userComplaintsDetails
         .find({ userId: id })
         .select("-__v");
+      const result1 = await userFstpDetails
+        .find({ userId: id })
+        .select("-__v");
       // console.log(result);
 
       // console.log("result", result);
@@ -18,6 +22,7 @@ export async function GET(request: Request) {
         JSON.stringify({
           success: true,
           data: result,
+          dataFstp: result1,
           message: "ok !!",
         }),
         {

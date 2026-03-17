@@ -1,19 +1,19 @@
 import dbConnect from "@/lib/dbConnect";
 import userComplaintsDetails from "@/model/userComplaintsDetails";
+import userFstpDetails from "@/model/userFstpDetails";
 
 export async function POST(request: Request) {
   // Parse the request body
   const body = await request.json();
-  const { specificLocation, gp, description, userId, img, public_id } = body;
-  //   console.log(body);
+  const { name,contact,location,gp,choiceOfDate,userId } = body;
 
   if (
-    !specificLocation ||
-    !gp ||
-    !description ||
+    !name ||
     !userId ||
-    !img ||
-    !public_id
+    !contact ||
+    !location ||
+    !gp ||
+    !choiceOfDate 
   ) {
     return new Response(
       JSON.stringify({ success: false, message: "Invalid details" }),
@@ -26,18 +26,13 @@ export async function POST(request: Request) {
 
   try {
     await dbConnect();
-    await userComplaintsDetails.create({
-      specificLocation,
-      gp,
-      description,
-      userId,
-      img,
-      public_id,
+    await userFstpDetails.create({
+     name,contact,location,gp,choiceOfDate,userId
     });
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Complaint successfully uploaded, Go To Dashboard To Track Details.",
+        message: "FSTP Successfully Registered, Go To Dashboard To Track Details.",
       }),
       {
         status: 200,

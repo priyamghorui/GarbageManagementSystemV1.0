@@ -39,7 +39,7 @@ const BlockAdminDashboard = () => {
       // console.log(response?.data);
       settotalGps(response?.data?.data?.totalGps);
       settotalBenificiary(response?.data?.data?.totalBenificiary);
-      const response2 = await axios.get(`/api/fetch-user-complaints-via-block`);
+      const response2 = await axios.get(`/api/fetch-user-fstp-via-block`);
       // console.log(response2?.data);
       setcomplaintStats({
         totalReceived: response2?.data?.data?.length,
@@ -107,6 +107,39 @@ const BlockAdminDashboard = () => {
 
           {/* 2. COMPLAINTS SECTION */}
           <CardContainer
+            title="FSTP"
+            icon={FileText}
+            color="blue"
+          >
+            <div className="space-y-3">
+              <ComplaintStat
+                label="Total Received"
+                value={complaintStats.totalReceived}
+                color="text-gray-700"
+                icon={FileText}
+              />
+              <ComplaintStat
+                label="Resolved"
+                value={complaintStats.resolved}
+                color="text-green-600"
+                icon={CheckCircle}
+              />
+              <ComplaintStat
+                label="Not Resolved"
+                value={complaintStats.notResolved}
+                color="text-red-500"
+                icon={XCircle}
+              />
+            </div>
+            <button
+              onClick={() => handleNavigation("/fstp")}
+              className="w-full py-2 bg-gray-600 cursor-pointer text-white font-medium rounded-lg hover:bg-gray-700 transition duration-150 shadow-md mt-6"
+            >
+              View All Complaints
+            </button>
+          </CardContainer>
+          {/* 2. COMPLAINTS SECTION */}
+          <CardContainer
             title="Complaints Overview"
             icon={FileText}
             color="red"
@@ -157,6 +190,7 @@ const BlockAdminDashboard = () => {
               Show All Beneficiary Data
             </button>
           </CardContainer>
+          
         </div>
       </div>
     </div>

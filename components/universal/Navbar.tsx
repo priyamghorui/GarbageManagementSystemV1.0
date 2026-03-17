@@ -69,6 +69,7 @@ const Navbar = () => {
               >
                 Home
               </a>
+           
               {/* Optional buttons/links can be added here */}
 
               {status === "loading" ? (
@@ -99,14 +100,42 @@ const Navbar = () => {
                         </a>
                       ) : (
                         <>   {session?.user?.typeAdmin == "regular" ? (
+                          <>
                         <a
                           href="/regular/dashboard"
                           className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
-                        >
+                          >
                           Dashboard
                         </a>
+                        <a
+                          href="/regular/launch-fstp"
+                          className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+                          >
+                          FSTP
+                        </a>
+                        <a
+                          href="/regular/launch-complaint"
+                          className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+                          >
+                          Complaints
+                        </a>
+                          </>
+                        
                       ) : (
-                        <></>
+                        <>   <a
+               onClick={()=>{setIsSignInOpen(true);
+                }}
+                className="text-gray-300 hover:bg-gray-700 cursor-pointer hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+              >
+                FSTP
+              </a>
+              <a
+               onClick={()=>{setIsSignInOpen(true);
+                }}
+                className="text-gray-300 cursor-pointer hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+              >
+                Complaints
+              </a></>
                       )}</>
                       )}
                     </>
@@ -251,6 +280,7 @@ const Navbar = () => {
           >
             Home
           </a>
+        
   {status === "loading" ? (
                 <>
                   <div className="flex items-center space-x-2 text-gray-500 bg-gray-100 px-4 py-2 rounded-xl text-sm font-semibold animate-pulse">
@@ -279,14 +309,41 @@ const Navbar = () => {
                         </a>
                       ) : (
                         <>   {session?.user?.typeAdmin == "regular" ? (
+                          <div className="flex flex-col">
                         <a
                           href="/regular/dashboard"
                           className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
-                        >
+                          >
                           Dashboard
                         </a>
+                        <a
+                          href="/regular/launch-fstp"
+                          className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+                          >
+                          FSTP
+                        </a>
+                        <a
+                          href="/regular/launch-complaint"
+                          className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition duration-150"
+                          >
+                          Complaints
+                        </a>
+                          </div>
                       ) : (
-                        <></>
+                        <>  <a
+           onClick={()=>{setIsSignInOpen(true);
+                }}
+            className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150"
+          >
+            FSTP
+          </a>
+          <a
+            onClick={()=>{setIsSignInOpen(true);
+                }}
+            className="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition duration-150"
+          >
+            Complaints
+          </a></>
                       )}</>
                       )}
                     </>
